@@ -11,11 +11,10 @@ Tanpa build step, tanpa dependency — langsung jalan di Vercel.
 npm run deploy      # = npx vercel --prod --yes
 ```
 
-Lalu set env di **Vercel → Settings → Environment Variables** dan redeploy:
+Portal siswa **tidak butuh secret key** atau env apa pun. Env di bawah semuanya opsional (Vercel → Settings → Environment Variables, lalu redeploy):
 
 | Nama | Wajib? | Fungsi |
 |------|--------|--------|
-| `SESSION_SECRET` | **Ya (portal siswa)** | Kunci enkripsi cookie sesi, min. 16 karakter acak. |
 | `MAPEL_LIST` | Tidak | JSON daftar kuis dari guru → jadi tombol pilihan setelah login. Contoh: `[{"id":123,"nama":"Jaringan Dasar - UH 1"}]` |
 | `ELEARNING_BASE_URL` | Tidak | Default `https://e-learning.smkbinarahayu.sch.id` |
 | `IG_SESSIONID` | Tidak | Cookie `sessionid` Instagram (akun cadangan) supaya Instagram stabil. |
@@ -34,16 +33,17 @@ api/portal/quiz.js         GET  /api/portal/quiz?id=123    nilai/percobaan kuis
 api/portal/logout.js       POST /api/portal/logout         akhiri sesi
 api/_lib/config.js         URL e-learning (baseUrl, loginUrl, quizUrlTemplate, dst.) + MAPEL_LIST
 api/_lib/moodle.js         klien Moodle: login token, cookie jar, parser profil & kuis
-api/_lib/session.js        cookie sesi terenkripsi, cek origin, rate limit login
+api/_lib/session.js        token sesi stateless (validasi ketat), cek origin, rate limit login
 api/_lib/tiktok.js, instagram.js, util.js
 ```
 
-## Cara kerja Portal Siswa
+## Cara kerja Portal Siswa (stateless, tanpa secret key)
 
-1. Siswa isi username + sandi → server ini login ke `/login/index.php` (dengan `logintoken`) atas nama siswa.
-2. Yang disimpan hanya **cookie sesi Moodle**, dienkripsi AES-256-GCM, di cookie `HttpOnly` + `SameSite=Strict` milik browser siswa (berlaku 2 jam). **Sandi tidak disimpan/dicatat.**
-3. Profil diambil dari `/user/profile.php`. Nilai diambil dari `quizUrlTemplate` (`/mod/quiz/view.php?id={id}`); ID hanya boleh angka dan host tujuan dikunci ke e-learning sekolah.
-4. Tombol **Keluar** juga memanggil logout di Moodle.
+1. Siswa isi username + sandi → server login ke `/login/index.php` (dengan `logintoken`) atas nama siswa. Sandi hanya dipakai sekali ini, **tidak disimpan/dicatat** dan tidak dikirim ulang.
+2. Server membalas dengan **token** berisi cookie sesi Moodle milik siswa itu sendiri. Server tidak menyimpan apa pun.
+3. Browser menyimpan token di `sessionStorage` (hilang saat tab ditutup) dan mengirimnya lewat header `x-portal-token` di tiap request (`/me`, `/quiz`, `/logout`). Server memvalidasi token dengan ketat lalu meneruskannya ke e-learning.
+4. Profil dari `/user/profile.php`; nilai dari `quizUrlTemplate` (`/mod/quiz/view.php?id={id}`). ID hanya boleh angka, host tujuan dikunci ke e-learning sekolah.
+5. **Keluar** juga memanggil logout di Moodle, jadi sesi langsung mati. Masa berlaku sesi ditentukan Moodle sendiri.
 
 Guru cukup memberi siswa ID kuis (angka di URL `.../mod/quiz/view.php?id=123`), atau isi `MAPEL_LIST` supaya siswa tinggal klik.
 
