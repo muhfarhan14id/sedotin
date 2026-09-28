@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#edf0f5">
+<title>Sedotin — unduh video TikTok, Instagram, YouTube, X</title>
+<meta name="description" content="Tempel link, langsung unduh. Atau masukkan akun dan ambil 3 video terpopulernya.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232b3fff'/%3E%3Cpath d='M32 14v26m-11-9 11 11 11-11M18 50h28' stroke='%23fff' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--bg:#edf0f5;--ink:#101a33;--mut:#5b6784;--line:#cbd2e1;--surf:#fff;--blue:#2b3fff;--sun:#ffc93c;--err:#c4223f}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 Figtree,system-ui,sans-serif;padding:max(28px,env(safe-area-inset-top)) 20px max(64px,env(safe-area-inset-bottom))}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:720px;margin:0 auto}
+h1{font:800 clamp(60px,15vw,112px)/.88 'Bricolage Grotesque',sans-serif;letter-spacing:-.045em}
+.lead{color:var(--mut);max-width:42ch;margin:16px 0 30px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+.seg{display:inline-flex;border:2px solid var(--ink);border-radius:999px;padding:3px;margin:0 8px 14px 0}
+.seg button{border:0;background:none;font-weight:600;font-size:15px;padding:7px 16px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+
+.slot{display:flex;border:2px solid var(--ink);border-radius:16px;background:var(--surf);overflow:hidden}
+.slot:focus-within{box-shadow:0 0 0 4px var(--sun)}
+.slot input{flex:1;min-width:0;border:0;padding:18px;font-size:17px;font-weight:500;background:none;outline:none}
+.slot input::placeholder{color:#8b95ad}
+.slot .go{border:0;background:var(--blue);color:#fff;font-weight:700;padding:0 26px;cursor:pointer}
+.slot .go:disabled{opacity:.6;cursor:progress}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;list-style:none;padding:0;margin-top:14px}
+.chips li{padding:3px 12px;border:1.5px solid var(--line);border-radius:999px;font-size:14px;color:var(--mut);transition:background .2s,color .2s,border-color .2s}
+.chips li.hit{background:var(--blue);border-color:var(--blue);color:#fff}
+
+#out{margin-top:8px}
+.status,.err{margin-top:24px;font-weight:500}
+.err{color:var(--err);border-left:4px solid var(--err);padding-left:12px}
+.card{display:grid;grid-template-columns:112px 1fr;gap:16px;background:var(--surf);border:2px solid var(--ink);border-radius:16px;padding:14px;margin-top:20px}
+.card img.cover{width:112px;aspect-ratio:3/4;object-fit:cover;border-radius:10px;background:var(--line)}
+.card h3{font:700 18px/1.3 'Bricolage Grotesque',sans-serif;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.meta{color:var(--mut);font-size:14px;margin-top:4px}
+.dl{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{display:inline-block;text-decoration:none;font-weight:600;font-size:14px;padding:8px 14px;border-radius:10px;border:2px solid var(--ink);background:var(--surf);cursor:pointer}
+.btn.main{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.ghost{border-color:var(--line);color:var(--mut)}
+
+.who{display:flex;gap:14px;align-items:center;margin-top:28px}
+.who img{width:68px;height:68px;border-radius:50%;object-fit:cover;background:var(--line);border:2px solid var(--ink)}
+.who b{font:700 20px 'Bricolage Grotesque',sans-serif}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:22px}
+.note{color:var(--mut);font-size:14px;margin-top:10px}
+.rk{grid-template-columns:52px 96px 1fr}
+.rk img.cover{width:96px}
+.rank{font:800 54px/1 'Bricolage Grotesque',sans-serif;color:var(--blue);letter-spacing:-.04em}
+.legal{margin-top:48px;color:var(--mut);font-size:13px;max-width:60ch}
+@media(max-width:520px){.card{grid-template-columns:88px 1fr}.card img.cover{width:88px}.rk{grid-template-columns:36px 76px 1fr}.rk img.cover{width:76px}.rank{font-size:38px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Sedotin</h1>
+    <p class="lead">Tempel link video, langsung unduh. Atau masukkan akun dan ambil 3 video terpopulernya.</p>
+  </header>
+
+  <main>
+    <div>
+      <div class="seg" role="group" aria-label="Mode">
+        <button type="button" data-mode="video" aria-pressed="true">Link video</button>
+        <button type="button" data-mode="profile" aria-pressed="false">Profil</button>
+      </div>
+      <div class="seg" id="pf" role="group" aria-label="Platform profil" hidden>
+        <button type="button" data-pf="tiktok" aria-pressed="true">TikTok</button>
+        <button type="button" data-pf="instagram" aria-pressed="false">Instagram</button>
+      </div>
+    </div>
+
+    <form id="f" autocomplete="off">
+      <div class="slot">
+        <input id="q" type="text" inputmode="url" placeholder="https://www.tiktok.com/@…/video/…" aria-label="Link atau username" required>
+        <button class="go" id="go" type="submit">Ambil</button>
+      </div>
+    </form>
+    <ul class="chips" id="chips" aria-label="Platform terdeteksi">
+      <li data-p="tiktok">TikTok</li><li data-p="instagram">Instagram</li><li data-p="youtube">YouTube</li><li data-p="twitter">X / Twitter</li>
+    </ul>
+
+    <div id="out" aria-live="polite"></div>
+  </main>
+
+  <p class="legal">Unduh hanya konten yang kamu punya hak untuk menyimpannya. Hormati hak cipta dan aturan tiap platform.</p>
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const num = (n) => n == null ? '–' : n >= 1e6 ? (n / 1e6).toFixed(1).replace('.0', '') + ' jt' : n >= 1e3 ? (n / 1e3).toFixed(1).replace('.0', '') + ' rb' : String(n);
+const dur = (s) => s ? Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') : '';
+const detect = (v) => /tiktok\.com/i.test(v) ? 'tiktok' : /instagram\.com|instagr\.am/i.test(v) ? 'instagram' : /youtu\.?be/i.test(v) ? 'youtube' : /(^|[/.])(x|twitter)\.com/i.test(v) ? 'twitter' : null;
+
+let mode = 'video', pf = 'tiktok';
+const PH = { video: 'https://www.tiktok.com/@…/video/…', profile: '@username atau link profil' };
+
+function syncChips() {
+  const hit = mode === 'video' ? detect($('#q').value) : pf;
+  document.querySelectorAll('#chips li').forEach((li) => li.classList.toggle('hit', li.dataset.p === hit));
+}
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.mode === m));
+  $('#pf').hidden = m !== 'profile';
+  $('#q').placeholder = PH[m];
+  $('#out').innerHTML = '';
+  syncChips();
+}
+document.querySelectorAll('[data-mode]').forEach((b) => b.onclick = () => setMode(b.dataset.mode));
+document.querySelectorAll('[data-pf]').forEach((b) => b.onclick = () => {
+  pf = b.dataset.pf;
+  document.querySelectorAll('[data-pf]').forEach((x) => x.setAttribute('aria-pressed', x === b));
+  syncChips();
+});
+$('#q').addEventListener('input', () => {
+  syncChips();
+  // di mode profil, link profil otomatis memilih platform
+  if (mode === 'profile') { const d = detect($('#q').value); if (d === 'tiktok' || d === 'instagram') { pf = d; document.querySelectorAll('[data-pf]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.pf === d)); syncChips(); } }
+});
+
+async function api(path, params) {
+  const r = await fetch(`/api/${path}?` + new URLSearchParams(params));
+  const j = await r.json().catch(() => ({ ok: false, error: 'Server tidak memberi respons yang valid' }));
+  if (!j.ok) throw new Error(j.error || 'Gagal mengambil data');
+  return j;
+}
+
+function saveAll(links) {
+  links.forEach((h, i) => setTimeout(() => {
+    const a = document.createElement('a'); a.href = h; a.download = ''; document.body.append(a); a.click(); a.remove();
+  }, i * 1300));
+}
+
+function renderVideo(m) {
+  const meta = [m.author, dur(m.duration), m.stats?.views != null ? num(m.stats.views) + ' tayangan' : '', m.stats?.likes != null ? num(m.stats.likes) + ' suka' : ''].filter(Boolean).join(' • ');
+  const btns = m.items.map((it, i) => `<a class="btn ${i === 0 ? 'main' : ''}" href="${esc(it.href)}" download>${esc(it.label)}</a>`).join('');
+  $('#out').innerHTML = `<article class="card">
+    <img class="cover" src="${esc(m.thumbnail || '')}" alt="" onerror="this.style.visibility='hidden'">
+    <div><h3>${esc(m.title || 'Tanpa judul')}</h3><p class="meta">${esc(meta)}</p><div class="dl">${btns}</div></div></article>`;
+}
+
+function renderProfile(d) {
+  const p = d.profile;
+  const stats = [p.followers != null ? num(p.followers) + ' pengikut' : '', p.posts != null ? num(p.posts) + ' postingan' : ''].filter(Boolean).join(' • ');
+  const rows = d.top.map((v) => `<article class="card rk">
+    <div class="rank" aria-label="Peringkat ${v.rank}">${v.rank}</div>
+    <img class="cover" src="${esc(v.cover || '')}" alt="" onerror="this.style.visibility='hidden'">
+    <div><h3>${esc(v.title)}</h3>
+      <p class="meta">${[v.views != null ? num(v.views) + ' tayangan' : '', v.likes != null ? num(v.likes) + ' suka' : '', dur(v.duration)].filter(Boolean).join(' • ')}</p>
+      <div class="dl"><a class="btn main" href="${esc(v.items[0].href)}" download>Unduh MP4</a><a class="btn ghost" href="${esc(v.link)}" target="_blank" rel="noopener">Buka asli</a></div></div></article>`).join('');
+  $('#out').innerHTML = `
+    <div class="who"><img src="${esc(p.avatar || '')}" alt="" onerror="this.style.visibility='hidden'">
+      <div><b>${esc(p.name || p.username)}</b> <span class="meta">@${esc(p.username)}${p.verified ? ' • terverifikasi' : ''}</span><p class="meta">${esc(stats)}</p></div></div>
+    <div class="bar"><span class="meta">${d.top.length} video teratas dari ${d.scanned} video yang dipindai</span>
+      <button class="btn main" id="all" type="button">Unduh ketiganya</button></div>
+    ${d.note ? `<p class="note">${esc(d.note)}</p>` : ''}${rows}`;
+  $('#all').onclick = () => saveAll(d.top.map((v) => v.items[0].href));
+}
+
+$('#f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const q = $('#q').value.trim();
+  if (!q) return;
+  const go = $('#go');
+  go.disabled = true; go.textContent = 'Mengambil…';
+  $('#out').innerHTML = `<p class="status">${mode === 'video' ? 'Mencari video…' : 'Memindai profil, bisa sampai 10 detik…'}</p>`;
+  try {
+    if (mode === 'video') renderVideo(await api('download', { url: q }));
+    else renderProfile(await api('profile', { q, platform: pf }));
+  } catch (err) {
+    $('#out').innerHTML = `<p class="err" role="alert">${esc(err.message)}</p>`;
+  } finally {
+    go.disabled = false; go.textContent = 'Ambil';
+  }
+});
+</script>
+</body>
+</html>
