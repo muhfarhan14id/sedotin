@@ -1,48 +1,54 @@
 # Sedotin
 
-Downloader video **TikTok, Instagram, YouTube, X/Twitter** + scraper profil **TikTok & Instagram** (3 video teratas). Tanpa build step, tanpa dependency — langsung jalan di Vercel.
+1. **Downloader** video **TikTok & Instagram** (tempel link → unduh).
+2. **Portal Siswa SMK Bina Rahayu**: siswa login ke e-learning sekolah lewat tampilan yang enak, lihat **nama, username, profil**, dan **nilai kuis** dengan memasukkan **ID mapel** dari guru.
 
-## Deploy (auto setup)
+Tanpa build step, tanpa dependency — langsung jalan di Vercel.
+
+## Deploy
 
 ```bash
-npm run deploy      # = npx vercel --prod --yes  (login + buat project otomatis)
+npm run deploy      # = npx vercel --prod --yes
 ```
 
-Atau lewat Git: push folder ini ke GitHub → Vercel → **Add New Project** → Import → Deploy (tanpa ubah setting apa pun).
+Lalu set env di **Vercel → Settings → Environment Variables** dan redeploy:
 
-Lokal: `npm run dev` lalu buka http://localhost:3000
+| Nama | Wajib? | Fungsi |
+|------|--------|--------|
+| `SESSION_SECRET` | **Ya (portal siswa)** | Kunci enkripsi cookie sesi, min. 16 karakter acak. |
+| `MAPEL_LIST` | Tidak | JSON daftar kuis dari guru → jadi tombol pilihan setelah login. Contoh: `[{"id":123,"nama":"Jaringan Dasar - UH 1"}]` |
+| `ELEARNING_BASE_URL` | Tidak | Default `https://e-learning.smkbinarahayu.sch.id` |
+| `IG_SESSIONID` | Tidak | Cookie `sessionid` Instagram (akun cadangan) supaya Instagram stabil. |
+
+Lokal: `npm run dev` → http://localhost:3000 (buat file `.env` dari `.env.example`).
 
 ## Struktur
 
 ```
-public/index.html        UI (satu file)
-api/download.js          GET /api/download?url=…            metadata + link unduhan
-api/profile.js           GET /api/profile?q=…&platform=…    profil + 3 video teratas
-api/proxy.js             GET /api/proxy?u=…&n=nama.mp4      stream file (allowlist CDN)
-api/_lib/*.js            provider per platform
+public/index.html          UI (satu file): tab Downloader + Portal Siswa
+api/download.js            GET  /api/download?url=…        metadata + link unduhan (TikTok/IG)
+api/proxy.js               GET  /api/proxy?u=…&n=nama.mp4  stream file (allowlist CDN TikTok/IG)
+api/portal/login.js        POST /api/portal/login          {username,password}
+api/portal/me.js           GET  /api/portal/me             nama, username, profil
+api/portal/quiz.js         GET  /api/portal/quiz?id=123    nilai/percobaan kuis
+api/portal/logout.js       POST /api/portal/logout         akhiri sesi
+api/_lib/config.js         URL e-learning (baseUrl, loginUrl, quizUrlTemplate, dst.) + MAPEL_LIST
+api/_lib/moodle.js         klien Moodle: login token, cookie jar, parser profil & kuis
+api/_lib/session.js        cookie sesi terenkripsi, cek origin, rate limit login
+api/_lib/tiktok.js, instagram.js, util.js
 ```
 
-## Sumber data per platform
+## Cara kerja Portal Siswa
 
-| Platform  | Video | Profil / Top 3 | Sumber | Catatan |
-|-----------|-------|----------------|--------|---------|
-| TikTok    | ✅ | ✅ (dari ±90 video terbaru, urut tayangan) | tikwm.com | Paling stabil. Ada foto-slideshow & MP3. |
-| X/Twitter | ✅ | – | FxTwitter → VxTwitter | Stabil. |
-| YouTube   | ✅ | – | Innertube (ANDROID_VR) → cobalt | MP4 progresif (biasanya 360p) + audio M4A. Bisa diblokir di IP datacenter. |
-| Instagram | ✅ | ✅ (dari 12 postingan terbaru) | API privat (butuh cookie) → embed | **Sering diblokir tanpa login.** Isi `IG_SESSIONID`. |
+1. Siswa isi username + sandi → server ini login ke `/login/index.php` (dengan `logintoken`) atas nama siswa.
+2. Yang disimpan hanya **cookie sesi Moodle**, dienkripsi AES-256-GCM, di cookie `HttpOnly` + `SameSite=Strict` milik browser siswa (berlaku 2 jam). **Sandi tidak disimpan/dicatat.**
+3. Profil diambil dari `/user/profile.php`. Nilai diambil dari `quizUrlTemplate` (`/mod/quiz/view.php?id={id}`); ID hanya boleh angka dan host tujuan dikunci ke e-learning sekolah.
+4. Tombol **Keluar** juga memanggil logout di Moodle.
 
-## Environment variable (opsional)
+Guru cukup memberi siswa ID kuis (angka di URL `.../mod/quiz/view.php?id=123`), atau isi `MAPEL_LIST` supaya siswa tinggal klik.
 
-| Nama | Fungsi |
-|------|--------|
-| `IG_SESSIONID` | Cookie `sessionid` akun Instagram. Sangat disarankan supaya Instagram stabil. Pakai akun cadangan. |
-| `COBALT_API_URL`, `COBALT_API_KEY` | Fallback via instance cobalt milikmu (untuk YouTube 720p+ dsb). |
+## Catatan
 
-Set di **Vercel → Project → Settings → Environment Variables**, lalu redeploy.
-
-## Batasan yang perlu diketahui
-
-- YouTube & Instagram membatasi permintaan dari IP datacenter; ini di luar kendali kode. Kalau error, isi env di atas.
-- Proxy di-stream (tidak kena batas 4,5 MB), tapi durasi fungsi dibatasi 60 detik; file sangat besar bisa terputus.
-- `api.tikwm.com` gratis dengan batas ±1 request/detik, jadi scrape profil butuh beberapa detik.
-- Layanan pihak ketiga bisa berubah kapan saja; logikanya terisolasi di `api/_lib/` supaya mudah diganti.
+- Parser membaca HTML Moodle standar (tema Boost). Kalau tema sekolah beda dan ada bagian yang tidak terbaca, UI tetap menampilkan "teks asli halaman" sebagai cadangan; tinggal sesuaikan regex di `api/_lib/moodle.js`.
+- Pembatas login (8/menit/IP) bersifat best-effort per instance serverless.
+- TikTok via tikwm.com, Instagram via API privat/embed (sering diblokir IP datacenter → isi `IG_SESSIONID`).

@@ -1,9 +1,9 @@
 {
   "name": "sedotin",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Downloader video TikTok, Instagram, YouTube, X + scraper profil (3 video teratas) untuk Vercel",
+  "description": "Downloader TikTok & Instagram + Portal Siswa SMK Bina Rahayu (login e-learning, profil, nilai kuis) untuk Vercel",
   "engines": { "node": ">=20" },
   "scripts": {
     "dev": "npx vercel@latest dev",
