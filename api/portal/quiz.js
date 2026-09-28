@@ -1,14 +1,8 @@
 import { wrap } from '../_lib/util.js';
 import { Moodle, quiz } from '../_lib/moodle.js';
-import { requireSession, clearSession } from '../_lib/session.js';
-import { AuthError } from '../_lib/util.js';
+import { readToken } from '../_lib/session.js';
 
-export default wrap(async (req, res) => {
-  const s = requireSession(req, res);
-  try {
-    return await quiz(new Moodle(s.j), String(req.query.id || '').trim());
-  } catch (e) {
-    if (e instanceof AuthError) clearSession(req, res);
-    throw e;
-  }
+export default wrap(async (req) => {
+  const s = readToken(req);
+  return quiz(new Moodle(s.jar), String(req.query.id || '').trim());
 });

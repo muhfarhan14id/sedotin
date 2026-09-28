@@ -1,12 +1,13 @@
 import { wrap, UserError } from '../_lib/util.js';
 import { Moodle, logout } from '../_lib/moodle.js';
-import { getSession, clearSession, sameOrigin } from '../_lib/session.js';
+import { readToken, sameOrigin } from '../_lib/session.js';
 
-export default wrap(async (req, res) => {
+export default wrap(async (req) => {
   if (req.method !== 'POST') throw new UserError('Gunakan POST');
   sameOrigin(req);
-  const s = getSession(req);
-  if (s) await logout(new Moodle(s.j), s.k); // akhiri juga sesi di e-learning
-  clearSession(req, res);
+  try {
+    const s = readToken(req);
+    await logout(new Moodle(s.jar), s.sesskey); // akhiri juga sesi di e-learning
+  } catch { /* token sudah tidak valid: anggap sudah keluar */ }
   return {};
 });

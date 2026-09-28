@@ -1,9 +1,9 @@
 import { wrap, UserError } from '../_lib/util.js';
 import { login, profile } from '../_lib/moodle.js';
-import { setSession, sameOrigin, rateLimit } from '../_lib/session.js';
+import { makeToken, sameOrigin, rateLimit } from '../_lib/session.js';
 import { mapelList, links, ELEARNING } from '../_lib/config.js';
 
-export default wrap(async (req, res) => {
+export default wrap(async (req) => {
   if (req.method !== 'POST') throw new UserError('Gunakan POST');
   sameOrigin(req);
   rateLimit(req);
@@ -14,7 +14,5 @@ export default wrap(async (req, res) => {
 
   const { m, sesskey } = await login(username, password);
   const user = await profile(m, username);
-  // Yang disimpan hanya cookie sesi Moodle (bukan sandi).
-  setSession(req, res, { j: m.jar, u: username, k: sesskey });
-  return { site: ELEARNING.name, user, mapel: mapelList(), links: links() };
+  return { token: makeToken({ jar: m.jar, username, sesskey }), site: ELEARNING.name, user, mapel: mapelList(), links: links() };
 });
