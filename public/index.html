@@ -110,7 +110,7 @@ ul.ln{margin:12px 0 0 18px;font-size:14px}
         <label class="field"><span>Username / NIS</span><input id="lu" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
         <label class="field"><span>Sandi</span><div class="pw"><input id="lp" name="password" type="password" autocomplete="current-password" required><button type="button" id="tg">Lihat</button></div></label>
         <div class="row"><button class="btn main" id="lb" type="submit">Masuk</button></div>
-        <p class="safe">Sandimu diteruskan langsung ke e-learning sekolah dan <b>tidak disimpan</b> di web ini. Sesi otomatis berakhir dalam 2 jam atau saat kamu keluar. Pakai perangkat pribadi, dan jangan lupa keluar kalau pakai komputer umum.</p>
+        <p class="safe">Sandimu diteruskan langsung ke e-learning sekolah dan <b>tidak disimpan</b> di web ini. Sesi hanya tersimpan di tab ini dan hilang saat tab ditutup atau kamu menekan Keluar. Pakai perangkat pribadi, dan jangan lupa keluar kalau pakai komputer umum.</p>
         <div id="lerr" aria-live="polite"></div>
       </form>
     </section>
@@ -149,10 +149,17 @@ const num = (n) => n == null ? '–' : n >= 1e6 ? (n / 1e6).toFixed(1).replace('
 const dur = (s) => s ? Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') : '';
 const detect = (v) => /tiktok\.com/i.test(v) ? 'tiktok' : /instagram\.com|instagr\.am/i.test(v) ? 'instagram' : null;
 
+// Token sesi e-learning disimpan di sessionStorage (hilang saat tab ditutup), dikirim lewat header.
+const TK = 'sdt_portal_token';
+const getTok = () => { try { return sessionStorage.getItem(TK) || ''; } catch { return ''; } };
+const setTok = (t) => { try { t ? sessionStorage.setItem(TK, t) : sessionStorage.removeItem(TK); } catch {} };
+
 async function api(path, { method = 'GET', params, body } = {}) {
+  const headers = {};
+  if (body) headers['content-type'] = 'application/json';
+  if (path.startsWith('portal/') && path !== 'portal/login' && getTok()) headers['x-portal-token'] = getTok();
   const r = await fetch(`/api/${path}` + (params ? '?' + new URLSearchParams(params) : ''), {
-    method, credentials: 'same-origin',
-    ...(body ? { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {}),
+    method, headers, ...(body ? { body: JSON.stringify(body) } : {}),
   });
   const j = await r.json().catch(() => ({ ok: false, error: 'Server tidak memberi respons yang valid' }));
   if (!j.ok) { const e = new Error(j.error || 'Gagal mengambil data'); e.status = r.status; throw e; }
@@ -205,8 +212,9 @@ function showPortal(view) {
   $('#pstat').hidden = view !== 'load';
 }
 async function checkSession() {
+  if (!getTok()) return showPortal('login');
   $('#pstat').textContent = 'Memeriksa sesi…'; showPortal('load');
-  try { renderHome(await api('portal/me')); } catch { showPortal('login'); }
+  try { renderHome(await api('portal/me')); } catch { setTok(''); showPortal('login'); }
 }
 function renderHome(d) {
   const u = d.user;
@@ -226,7 +234,7 @@ $('#lf').addEventListener('submit', async (e) => {
   const b = $('#lb'); b.disabled = true; b.textContent = 'Masuk…'; $('#lerr').innerHTML = '';
   try {
     const d = await api('portal/login', { method: 'POST', body: { username: $('#lu').value.trim(), password: $('#lp').value } });
-    $('#lp').value = ''; renderHome(d);
+    setTok(d.token); $('#lp').value = ''; renderHome(d);
   } catch (err) { $('#lerr').innerHTML = `<p class="err" role="alert">${esc(err.message)}</p>`; }
   finally { b.disabled = false; b.textContent = 'Masuk'; }
 });
@@ -234,6 +242,7 @@ $('#lf').addEventListener('submit', async (e) => {
 $('#lo').onclick = async () => {
   $('#lo').disabled = true;
   try { await api('portal/logout', { method: 'POST', body: {} }); } catch {}
+  setTok('');
   $('#lo').disabled = false; $('#lu').value = ''; $('#lp').value = ''; showPortal('login');
 };
 
@@ -251,7 +260,7 @@ async function cekQuiz(id) {
   $('#qout').innerHTML = '<p class="status">Mengambil nilai…</p>';
   try { renderQuiz(await api('portal/quiz', { params: { id } })); }
   catch (err) {
-    if (err.status === 401) { showPortal('login'); $('#lerr').innerHTML = `<p class="err" role="alert">${esc(err.message)}</p>`; return; }
+    if (err.status === 401) { setTok(''); showPortal('login'); $('#lerr').innerHTML = `<p class="err" role="alert">${esc(err.message)}</p>`; return; }
     $('#qout').innerHTML = `<p class="err" role="alert">${esc(err.message)}</p>`;
   } finally { b.disabled = false; b.textContent = 'Cek nilai'; }
 }
