@@ -1,0 +1,12 @@
+{
+  "name": "sedotin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Downloader video TikTok, Instagram, YouTube, X + scraper profil (3 video teratas) untuk Vercel",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "npx vercel@latest dev",
+    "deploy": "npx vercel@latest --prod --yes"
+  }
+}
