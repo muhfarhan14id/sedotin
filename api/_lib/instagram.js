@@ -1,4 +1,4 @@
-import { getJson, UA, UserError, finish, img, proxied, safeName } from './util.js';
+import { getJson, UA, UserError, finish } from './util.js';
 
 const IGH = () => ({
   'x-ig-app-id': '936619743392459',
@@ -77,51 +77,4 @@ export async function instagramVideo(url) {
   } catch { /* jatuh ke error di bawah */ }
 
   throw new UserError(`Media Instagram tidak bisa diambil. Pastikan postingan publik. ${BLOCK_HINT}`);
-}
-
-export async function instagramProfile(username) {
-  let j;
-  try {
-    j = await getJson(`https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`, { headers: IGH() });
-  } catch (e) {
-    throw new UserError(`${e.message}. ${BLOCK_HINT}`);
-  }
-  const user = j.data?.user;
-  if (!user) throw new UserError('Akun Instagram tidak ditemukan');
-  if (user.is_private) throw new UserError('Akun Instagram ini privat');
-
-  const nodes = (user.edge_owner_to_timeline_media?.edges || []).map((e) => e.node);
-  const vids = nodes.filter((n) => n.is_video && n.video_url);
-  if (!vids.length) throw new UserError('Tidak ada video di 12 postingan terbaru akun ini');
-  const score = (n) => n.video_view_count || n.video_play_count || n.edge_media_preview_like?.count || n.edge_liked_by?.count || 0;
-
-  const top = [...vids].sort((a, b) => score(b) - score(a)).slice(0, 3).map((n, i) => {
-    const title = n.edge_media_to_caption?.edges?.[0]?.node?.text?.split('\n')[0] || `${username}-${n.shortcode}`;
-    return {
-      rank: i + 1,
-      title,
-      cover: img(n.display_url || n.thumbnail_src),
-      duration: n.video_duration ? Math.round(n.video_duration) : undefined,
-      views: n.video_view_count || n.video_play_count,
-      likes: n.edge_media_preview_like?.count ?? n.edge_liked_by?.count,
-      link: `https://www.instagram.com/p/${n.shortcode}/`,
-      items: [{ label: 'MP4', ext: 'mp4', kind: 'video', href: proxied(n.video_url, safeName(title, 'mp4')) }],
-    };
-  });
-
-  return {
-    platform: 'instagram',
-    profile: {
-      username: user.username,
-      name: user.full_name,
-      avatar: img(user.profile_pic_url_hd || user.profile_pic_url),
-      bio: user.biography,
-      verified: !!user.is_verified,
-      followers: user.edge_followed_by?.count,
-      posts: user.edge_owner_to_timeline_media?.count,
-    },
-    scanned: vids.length,
-    note: 'Instagram hanya membuka 12 postingan terbaru tanpa login, jadi "teratas" dihitung dari video di dalamnya.',
-    top,
-  };
 }
